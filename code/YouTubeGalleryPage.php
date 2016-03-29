@@ -44,9 +44,6 @@ class YouTubeGalleryPage extends Page
         'PlaylistID' => true,
     );
 
-    private static $playlistItems = array();
-    private static $playlist;
-
     /**
      * @return FieldList
      */
@@ -86,93 +83,58 @@ class YouTubeGalleryPage extends Page
         return $result;
     }
 
-    /**
-     * @param null $playlistID
-     * @return bool
-     */
-    protected static function getBasePlaylistData($playlistID = null)
-    {
-        if ($playlistID === null) {
-            return false;
-        }
+    private $playlist;
 
-        $key = self::getAPIKey();
+    /**
+     * @param ArrayList|null $playlist
+     * @return $this
+     */
+    public function setYoutubePlaylist($playlist = null)
+    {
+        if ($playlist === null) {
+            $this->buildYoutubePlaylist();
+        }
+        $this->playlist = $playlist;
+        return $this;
+    }
+
+    /**
+     * @return bool|ArrayList
+     */
+    public function getYoutubePlaylist()
+    {
+        if (!$this->playlist) {
+            $this->buildYoutubePlaylist();
+        }
+        return $this->playlist;
+    }
+
+    /**
+     * 
+     */
+    protected function buildYoutubePlaylist()
+    {
+        $list = ArrayList::create();
+
         $client = new Google_Client();
-        $client->setApplicationName('Dynamic Miller STN Test');
-        $client->setDeveloperKey($key);
+        $client->setApplicationName($this->config()->get('application_name'));
+        $client->setDeveloperKey($this->config()->get('api_key'));
         $service = new Google_Service_YouTube($client);
-        //todo allow for customization of the call (max, multiple ID's, etc)
-        //see https://developers.google.com/youtube/v3/docs/playlistItems/list
         $results = $service->playlistItems->listPlaylistItems('snippet',
-            array('playlistId' => $playlistID, 'maxResults' => 50));
+            array('playlistId' => $this->PlaylistID, 'maxResults' => 50));
         $results = $results['items'];
+
+        $pushVideo = function ($video) use (&$list) {
+            if ($parsedVideo = YouTubeVideo::parse_video_data($video)) {
+                $list->push($parsedVideo);
+            }
+        };
+
         foreach ($results as $result) {
-            $snippet = $result['snippet'];
-            $video = YouTubeVideo::create();
-            $video->Title = $snippet['title'];
-            $video->Thumbnail = $snippet['thumbnails']['default']['url'];
-            $video->ThumbnailWidth = $snippet['thumbnails']['default']['width'];
-            $video->ThumbnailHeight = $snippet['thumbnails']['default']['height'];
-            $video->URL = self::generateYouTubeLink($snippet['resourceId']['videoId']);
-            self::$playlistItems[] = $video;
+            $pushVideo($result);
         }
 
-    }
-
-    /**
-     * @param null $items
-     * @return bool
-     */
-    protected static function getAdditionalVideoInformation($items = null)
-    {
-        if ($items === null) {
-            return false;
-        }
-
-        //todo add options for additional info to be queried per video
-
-        self::$playlist = $items;
-    }
-
-    /**
-     * @param null $playlistID
-     * @return bool
-     */
-    public static function getPlaylistVideos($playlistID = null)
-    {
-        if ($playlistID === null) {
-            return false;
-        }
-
-        self::getBasePlaylistData($playlistID);
-        self::getAdditionalVideoInformation(self::$playlistItems);
-
-        return self::$playlist;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getVideos()
-    {
-        return ArrayList::create(self::getPlaylistVideos($this->PlaylistID));
-    }
-
-    /**
-     * @param null $url
-     * @return bool|string
-     */
-    protected static function generateYouTubeLink($url = null)
-    {
-        return ($url === null) ? false : '//www.youtube.com/watch?v=' . $url;
-    }
-
-    /**
-     * @return array|scalar
-     */
-    protected static function getAPIKey()
-    {
-        return Config::inst()->get('YouTubeGalleryPage', 'api_key');
+        $this->setYoutubePlaylist($list);
     }
 
 }
@@ -203,7 +165,7 @@ class YouTubeGalleryPage_Controller extends Page_Controller
      */
     public function Playlist()
     {
-        $list = $this->data()->getVideos();
+        $list = $this->data()->getYoutubePlaylist();
         return PaginatedList::create($list, $this->request)
             ->setPageLength(($this->data()->VideosPerPage) ? $this->data()->VideosPerPage : 8);
     }
