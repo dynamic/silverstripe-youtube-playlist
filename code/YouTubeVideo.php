@@ -43,7 +43,7 @@ class YouTubeVideo extends ViewableData
         $snippet = $data['snippet'];
         $video = YouTubeVideo::create();
         $video->Title = $snippet['title'];
-        $video->Thumbnail = $snippet['thumbnails']['default']['url'];
+        $video->Thumbnail = $snippet['thumbnails']['high']['url'];
         $video->ThumbnailWidth = $snippet['thumbnails']['default']['width'];
         $video->ThumbnailHeight = $snippet['thumbnails']['default']['height'];
         $video->URL = self::generateYouTubeLink($snippet['resourceId']['videoId']);
