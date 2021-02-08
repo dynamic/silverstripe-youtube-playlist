@@ -9,7 +9,7 @@
         }
     ],
     "keywords": ["silverstripe", "youtube", "playlist", "dynamic"],
-    "type": "silverstripe-module",
+    "type": "silverstripe-vendormodule",
     "license": "BSD-3-Clause",
     "require": {
         "silverstripe/cms": "^4.4",
