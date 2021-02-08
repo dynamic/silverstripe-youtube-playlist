@@ -1,21 +1,38 @@
 {
-  "name": "dynamic/silverstripe-youtube-playlist",
-  "description": "SilverStripe Youtube Playlist Module. List videos from a Youtube Playlist on a page in SilverStripe.",
-  "keywords": ["silverstripe", "youtube", "playlist", "dynamic"],
-  "type": "silverstripe-module",
-  "license": "BSD-3-Clause",
-  "authors": [
-    {
-      "name": "Dynamic Inc",
-      "email": "dev@dynamicagency.com",
-      "homepage": "http://www.dynamicagency.com"
+    "name": "dynamic/silverstripe-youtube-playlist",
+    "description": "SilverStripe Youtube Playlist Module. List videos from a Youtube Playlist on a page in SilverStripe.",
+    "authors": [
+        {
+            "name": "Dynamic",
+            "homepage": "http://www.dynamicagency.com",
+            "email": "dev@dynamicagency.com"
+        }
+    ],
+    "keywords": ["silverstripe", "youtube", "playlist", "dynamic"],
+    "type": "silverstripe-module",
+    "license": "BSD-3-Clause",
+    "require": {
+        "silverstripe/cms": "^4.4",
+        "google/apiclient": "^2.0.0@RC"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7",
+        "squizlabs/php_codesniffer": "^3.0"
+    },
+    "config": {
+        "process-timeout": 600
+    },
+    "autoload": {
+        "psr-4": {
+            "Dynamic\\YouTubePlaylist\\": "src/",
+            "Dynamic\\YouTubePlaylist\\Test\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.x-dev"
+        }
     }
-  ],
-  "require": {
-    "silverstripe/cms": "^3.1",
-    "google/apiclient": "^2.0.0@RC"
-  },
-  "extra": {
-    "installer-name": "youtube-playlist"
-  }
 }

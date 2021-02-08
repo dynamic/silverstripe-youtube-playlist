@@ -1,19 +1,30 @@
 <?php
 
+namespace Dynamic\YouTubePlaylist\Page;
+
+use Dynamic\YouTubePlaylist\Model\YouTubeVideo;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\NumericField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\ValidationResult;
+
 /**
  * Class YouTubeGalleryPage
  */
-class YouTubeGalleryPage extends Page
+class YouTubeGalleryPage extends \Page
 {
 
     /**
      * @var string
      */
     private static $singular_name = 'YouTube Gallery Page';
+
     /**
      * @var string
      */
     private static $plural_name = 'YouTube Gallery Pages';
+
     /**
      * @var string
      */
@@ -28,6 +39,11 @@ class YouTubeGalleryPage extends Page
      * @var
      */
     private static $application_name;
+
+    /**
+     * @var string
+     */
+    private static $table_name = 'YouTubeGalleryPage';
 
     /**
      * @var array
@@ -110,16 +126,16 @@ class YouTubeGalleryPage extends Page
     }
 
     /**
-     * 
+     *
      */
     protected function buildYoutubePlaylist()
     {
         $list = ArrayList::create();
 
-        $client = new Google_Client();
+        $client = new \Google_Client();
         $client->setApplicationName($this->config()->get('application_name'));
         $client->setDeveloperKey($this->config()->get('api_key'));
-        $service = new Google_Service_YouTube($client);
+        $service = new \Google_Service_YouTube($client);
         $results = $service->playlistItems->listPlaylistItems('snippet',
             array('playlistId' => $this->PlaylistID, 'maxResults' => 50));
         $results = $results['items'];
@@ -135,39 +151,6 @@ class YouTubeGalleryPage extends Page
         }
 
         $this->setYoutubePlaylist($list);
-    }
-
-}
-
-/**
- * Class YouTubeGalleryPage_Controller
- */
-class YouTubeGalleryPage_Controller extends Page_Controller
-{
-
-    /**
-     * @var array
-     */
-    private static $allowed_actions = array(
-        'Playlist',
-    );
-
-    /**
-     *
-     */
-    public function init()
-    {
-        parent::init();
-    }
-
-    /**
-     * @return PaginatedList
-     */
-    public function Playlist()
-    {
-        $list = $this->data()->getYoutubePlaylist();
-        return PaginatedList::create($list, $this->request)
-            ->setPageLength(($this->data()->VideosPerPage) ? $this->data()->VideosPerPage : 8);
     }
 
 }
