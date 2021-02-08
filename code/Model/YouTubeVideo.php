@@ -1,5 +1,9 @@
 <?php
 
+namespace Dynamic\YouTubePlaylist\Model;
+
+use SilverStripe\View\ViewableData;
+
 /**
  * Class YouTubeVideo
  */
